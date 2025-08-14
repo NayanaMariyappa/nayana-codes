@@ -9,12 +9,12 @@
 #endif
 
 typedef struct queue {
-    int data;
-    struct queue *next;
+    int data[QUEUE_CAPACITY];
+    int *front;
+    int *rear;
 } queue_t;
 
-queue_t *front = NULL;
-queue_t *rear = NULL;
+queue_t q = {-1};
 int qSize = 0;
 
 bool isEmpty(void)
@@ -31,16 +31,12 @@ void printQueue(void)
 {
     if (isEmpty())
     {
-        printf("The Queue is empty");
+        printf("The Queue is empty\n");
         return;
     }
 
-    queue_t *ptr = front;
-    while(ptr)
-    {
-        printf("%d ");
-        ptr = ptr->next;
-    }
+    for(int i = 0; i < QUEUE_CAPACITY; i++) printf("%d ", q.data[i]);
+    printf("\n");
 }
 
 int getFront(void)
@@ -51,7 +47,7 @@ int getFront(void)
         return -1;
     }
 
-    return front->data;
+    return *q.front;
 }
 
 int getRear(void)
@@ -62,7 +58,7 @@ int getRear(void)
         return -1;
     }
 
-    return rear->data;
+    return *q.rear;
 }
 
 int queueSize(void)
@@ -72,10 +68,79 @@ int queueSize(void)
 
 int dequeue(void)
 {
-    
+    if(isEmpty())
+    {
+        printf("The Queue is empty, aborting the dequeue\n");
+        return -1;
+    }
+
+    int data = *q.front;
+    *q.front = -1; q.front++; qSize--;
+    if (qSize == 0) q.rear = q.front = NULL;
+
+    return data;
 }
 
-void freeQeueue(void)
+int enqueue(int data)
+{
+    if (isFull()) printf("The Queue is full, writing to the front.\n");
+
+    if (qSize == 0) q.front = q.rear = q.data;
+    else if (q.rear == q.data + QUEUE_CAPACITY) q.rear = q.data;
+    *q.rear = data;
+    q.rear++;
+    if (qSize != QUEUE_CAPACITY) qSize++;
+}
+
+void freeQueue(void)
 {
     while(!isEmpty()) dequeue();
+}
+
+int main(void)
+{
+    int arr[] = {5, 89, 33, 29, 10};
+    int ret = 0;
+
+    printf("The Queue before the enqueue: ");
+    printQueue();
+
+    for (int i = 0; i < sizeof(arr) / sizeof(arr[0]); i++)
+    {
+        if (enqueue(arr[i]) == -1)
+        {
+            printf("Queue is full, cannot enqueue %d\n", arr[i]);
+            ret = -1;
+            goto err;
+        } 
+    }
+    
+    printf("Queue after enqueue: ");
+    printQueue();
+    printf("The size of queue: %d\n", queueSize());
+
+    dequeue();
+    printf("Queue after dequeue: ");
+    printQueue();
+    printf("The size of queue: %d\n", queueSize());
+    printf("Rear: %d\n", getRear());
+    printf("Front: %d\n", getFront());
+
+    enqueue(50);
+    printf("Queue after enqueue: ");
+    printQueue();
+    printf("The size of queue: %d\n", queueSize());
+    printf("Rear: %d\n", getRear());
+    printf("Front: %d\n", getFront());
+
+    enqueue(100);
+    printf("Queue after enqueue: ");
+    printQueue();
+    printf("The size of queue: %d\n", queueSize());
+    printf("Rear: %d\n", getRear());
+    printf("Front: %d\n", getFront());
+
+err:
+    freeQueue();
+    return ret;
 }
