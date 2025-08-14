@@ -1,39 +1,43 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
-void printArr(int *arr, int sz)
+void printArray(int *arr, int s)
 {
-    for (int i = 0; i < sz; i++) printf("%d ", arr[i]);
-    printf("\n");    
+    for (int i = 0; i < s; i++) printf("%d ", arr[i]);
+    printf("\n");
 }
 
-void selectionSort(int arr[], int sz)
+void swap(int *arr, int i, int min)
 {
-    int min;
-    for (int i = 0; i < sz; i++)
+    if (i == min) return;
+
+    arr[i] ^= arr[min];
+    arr[min] ^= arr[i];
+    arr[i] ^= arr[min];
+}
+
+void selectionSort(int *arr, int s)
+{
+    for (int i = 0; i < s; i++)
     {
-        min = i;
-        for (int j = i + 1; j < sz; j++)
-        {
-            if (arr[j] < arr[min]) min = j;
-        }
-        if (min != i)
-        {
-            int temp = arr[i];
-            arr[i] = arr[min];
-            arr[min] = temp;
-        }
+        int min = i;
+        for (int j = i + 1; j < s; j++) if (arr[j] < arr[min]) min = j;
+        swap(arr, i, min);
     }
 }
 
 int main(void)
 {
-    int arr[] = {64, 25, 12, 22, 11};
+    int arr[] = {3, 22, 5, 0, 9, 88, 76};
     int sz = sizeof(arr) / sizeof(arr[0]);
 
     printf("Array before sorting: ");
-    printArr(arr, sz);
+    printArray(arr, sz);
+
     selectionSort(arr, sz);
     printf("Array after sorting: ");
-    printArr(arr, sz);
+    printArray(arr, sz);
+
     return 0;
 }
