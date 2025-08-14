@@ -10,21 +10,21 @@
 
 typedef struct queue {
     int data[QUEUE_CAPACITY];
-    int *front;
-    int *rear;
+    int front;
+    int rear;
+    int qSize;
 } queue_t;
 
-queue_t q = {-1};
-int qSize = 0;
+queue_t q = {.front = 0, .rear = -1, .qSize = 0};
 
 bool isEmpty(void)
 {
-    return qSize == 0 ? true : false;
+    return q.qSize == 0 ? true : false;
 }
 
 bool isFull(void)
 {
-    return qSize == QUEUE_CAPACITY ? true : false;
+    return q.qSize == QUEUE_CAPACITY ? true : false;
 }
 
 void printQueue(void)
@@ -35,35 +35,23 @@ void printQueue(void)
         return;
     }
 
-    for(int i = 0; i < QUEUE_CAPACITY; i++) printf("%d ", q.data[i]);
+    for(int i = 0; i < q.qSize; i++) printf("%d ", q.data[(q.front + i) % QUEUE_CAPACITY]);
     printf("\n");
 }
 
 int getFront(void)
 {
-    if (isEmpty())
-    {
-        printf("The list is empty, cannot get front\n");
-        return -1;
-    }
-
-    return *q.front;
+    return isEmpty() ? -1 : q.data[q.front];
 }
 
 int getRear(void)
 {
-    if (isEmpty())
-    {
-        printf("The list is empty, cannot get rear\n");
-        return -1;
-    }
-
-    return *q.rear;
+    return isEmpty() ? -1 : q.data[q.rear];
 }
 
 int queueSize(void)
 {
-    return qSize;
+    return q.qSize;
 }
 
 int dequeue(void)
@@ -74,22 +62,25 @@ int dequeue(void)
         return -1;
     }
 
-    int data = *q.front;
-    *q.front = -1; q.front++; qSize--;
-    if (qSize == 0) q.rear = q.front = NULL;
+    int data = q.data[q.front];
+    q.front = (q.front + 1 ) % QUEUE_CAPACITY;
+    q.qSize--;
 
     return data;
 }
 
-int enqueue(int data)
+void enqueue(int data)
 {
-    if (isFull()) printf("The Queue is full, writing to the front.\n");
+    if (isFull()) 
+    {
+        printf("The Queue is full, writing to the front.\n");
+        q.front = (q.front + 1) % QUEUE_CAPACITY;
+        q.qSize--;
+    }
 
-    if (qSize == 0) q.front = q.rear = q.data;
-    else if (q.rear == q.data + QUEUE_CAPACITY) q.rear = q.data;
-    *q.rear = data;
-    q.rear++;
-    if (qSize != QUEUE_CAPACITY) qSize++;
+    q.rear = (q.rear + 1) % QUEUE_CAPACITY;
+    q.data[q.rear] = data;
+    q.qSize++;
 }
 
 void freeQueue(void)
@@ -100,20 +91,11 @@ void freeQueue(void)
 int main(void)
 {
     int arr[] = {5, 89, 33, 29, 10};
-    int ret = 0;
 
     printf("The Queue before the enqueue: ");
     printQueue();
 
-    for (int i = 0; i < sizeof(arr) / sizeof(arr[0]); i++)
-    {
-        if (enqueue(arr[i]) == -1)
-        {
-            printf("Queue is full, cannot enqueue %d\n", arr[i]);
-            ret = -1;
-            goto err;
-        } 
-    }
+    for (int i = 0; i < sizeof(arr) / sizeof(arr[0]); i++) enqueue(arr[i]);
     
     printf("Queue after enqueue: ");
     printQueue();
@@ -140,7 +122,5 @@ int main(void)
     printf("Rear: %d\n", getRear());
     printf("Front: %d\n", getFront());
 
-err:
-    freeQueue();
-    return ret;
+    return 0;
 }
