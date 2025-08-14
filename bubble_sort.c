@@ -1,36 +1,51 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
-void printArr(int *arr, int sz)
+void printArray(int *arr, int s)
 {
-    for (int i = 0; i < sz; i++) printf("%d ", arr[i]);
+    for (int i = 0; i < s; i++) printf("%d ", arr[i]);
     printf("\n");
 }
 
-void bubbleSort(int arr[], int sz)
+void swap(int *arr, int i, int j)
 {
-    for (int i = 0; i < sz; i++)
+    if (i == j) return;
+    /* XOR for swapping is slow; good to use the temp
+     * variable as compiler these days does the optimization
+     * if temp var is used
+     */
+    int temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+}
+
+void bubbleSort(int *arr, int s)
+{
+    for (int i = 0; i < s - 1; i++)
     {
-        for (int j = 0; j < sz - i - 1; j++)
-        {
-            if (arr[j] > arr[j+1])
+        bool swapped = false;
+        for (int j = 0; j < s - i - 1; j++)
+            if (arr[j] > arr[j + 1])
             {
-                int temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
+                swap(arr, j, j + 1);
+                swapped = true;
             }
-        }
+
+        if (!swapped) break; // array is already sorted.
     }
 }
 
 int main(void)
 {
-    int arr[] = {64, 25, 12, 22, 11};
+    int arr[] = {6, 7, 88, 98, 2, 32};
     int sz = sizeof(arr) / sizeof(arr[0]);
 
     printf("Array before sorting: ");
-    printArr(arr, sz);
+    printArray(arr, sz);
     bubbleSort(arr, sz);
     printf("Array after sorting: ");
-    printArr(arr, sz);
+    printArray(arr, sz);
+
     return 0;
 }
