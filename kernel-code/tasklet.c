@@ -18,6 +18,7 @@ static void demo_timer_cb(struct timer_list *t)
 {
     tasklet_schedule(&demo_tasklet);
     mod_timer(demo_timer, jiffies + msecs_to_jiffies(5000));
+    pr_info("Timer callback is called.\n");
 }
 
 static int __init init_demo_tasklet()
@@ -28,6 +29,7 @@ static int __init init_demo_tasklet()
     timer_setup(&demo_timer, demo_timer_cb, 0UL);
     mod_timer(&demo_timer, jiffies + msecs_to_jiffies(2000));
 
+    pr_info("Initialization of tasklet and the timer is done.\n");
     return 0;
 }
 
@@ -35,6 +37,7 @@ static void __exit exit_demo_tasklet()
 {
     del_timer_sync(&demo_timer); // wait until the callback is finished and then delete.
     tasklet_kill(&demo_tasklet); // wait for tasklet callback to finish before deleting the tasklet.
+    pr_info("Deleting the timer and the tasklet is done.\n");
 }
 
 module_init(init_demo_tasklet);
