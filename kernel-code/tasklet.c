@@ -2,7 +2,7 @@
 #include <linux/kernel.h>
 #include <linux/interrupt.h>
 #include <linux/timer.h>
-#include 
+#include <linux/init.h>
 
 static struct tasklet_struct demo_tasklet;
 static struct timer_list demo_timer;
@@ -21,7 +21,7 @@ static void demo_timer_cb(struct timer_list *t)
     pr_info("Timer callback is called.\n");
 }
 
-static int __init init_demo_tasklet()
+static int __init init_demo_tasklet(void)
 {
     /* Create the tasklet */
     tasklet_init(&demo_tasklet, demo_tasklet_handler, 0UL);
@@ -29,15 +29,15 @@ static int __init init_demo_tasklet()
     timer_setup(&demo_timer, demo_timer_cb, 0UL);
     mod_timer(&demo_timer, jiffies + msecs_to_jiffies(2000));
 
-    pr_info("Initialization of tasklet and the timer is done.\n");
+    pr_info("[Init] Initialization of tasklet and the timer is done.\n");
     return 0;
 }
 
-static void __exit exit_demo_tasklet()
+static void __exit exit_demo_tasklet(void)
 {
     del_timer_sync(&demo_timer); // wait until the callback is finished and then delete.
     tasklet_kill(&demo_tasklet); // wait for tasklet callback to finish before deleting the tasklet.
-    pr_info("Deleting the timer and the tasklet is done.\n");
+    pr_info("[Exit] %d of times the tasklet handler is called\n", atomic_read(&count_tasklet_runs));
 }
 
 module_init(init_demo_tasklet);
